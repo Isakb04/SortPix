@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 using SortPix.Managers;
 using SortPix.Models;
 
@@ -31,6 +32,8 @@ namespace SortPix.Pages.MainPage
         private readonly FileManager fileManager;
         private readonly SideBarManager sideBarManager;
 
+        public ICommand OnItemSingleTappedCommand { get; }
+
         public MainPage()
         {
             InitializeComponent();
@@ -39,6 +42,8 @@ namespace SortPix.Pages.MainPage
             allItems = new List<FileSystemItem>();
             fileManager = new FileManager();
             sideBarManager = new SideBarManager();
+
+            OnItemSingleTappedCommand = new Command<FileSystemItem>(OnItemSingleTapped);
 
             FileListView.ItemsSource = Items;
             SidebarListView.ItemsSource = sideBarManager.SidebarItems;
@@ -146,11 +151,15 @@ namespace SortPix.Pages.MainPage
 
         }
 
-        private void OnItemSingleTapped(object sender, EventArgs e)
+        private void OnItemSingleTapped(FileSystemItem tappedItem)
         {
-            var tappedItem = (sender as View)?.BindingContext as FileSystemItem;
             if (tappedItem != null)
             {
+                foreach (var item in Items)
+                {
+                    item.IsSelected = false; // Deselect all other items
+                }
+                tappedItem.IsSelected = true; // Select the tapped item
                 FileListView.SelectedItem = tappedItem;
             }
         }
@@ -166,27 +175,37 @@ namespace SortPix.Pages.MainPage
 
         private async void OnUpButtonClickedRenameSelected(object sender, EventArgs e)
         {
-            var selectedItem = FileListView.SelectedItem as FileSystemItem;
-            if (selectedItem == null)
+            var selectedItems = Items.Where(item => item.IsSelected).ToList();
+            if (!selectedItems.Any())
             {
-                await DisplayAlert("Error", "No item selected to rename.", "OK");
+                await DisplayAlert("Error", "No items selected to rename.", "OK");
                 return;
             }
 
-            var newName = await DisplayPromptAsync("Rename File", "Enter your input:");
-            if (!string.IsNullOrWhiteSpace(newName))
+            foreach (var selectedItem in selectedItems)
             {
-                await fileManager.RenameItemAsync(selectedItem, newName, currentPath, LoadFilesAndDirectories);
+                var newName = await DisplayPromptAsync($"Rename {selectedItem.Name}", "Enter new name:");
+                if (!string.IsNullOrWhiteSpace(newName))
+                {
+                    await fileManager.RenameItemAsync(selectedItem, newName, currentPath, LoadFilesAndDirectories);
+                    FileListView.SelectedItem = null; // Deselect the item
+                }
             }
         }
 
         private async void OnbuttonClickedDeleteSelected(object sender, EventArgs e)
         {
-            var selectedItem = FileListView.SelectedItem as FileSystemItem;
-            if (selectedItem != null)
+            var selectedItems = Items.Where(item => item.IsSelected).ToList();
+            if (!selectedItems.Any())
             {
-                var confirm = await DisplayAlert("Confirm Delete", $"Are you sure you want to delete '{selectedItem.Name}'?", "Yes", "No");
-                if (confirm)
+                await DisplayAlert("Error", "No items selected to delete.", "OK");
+                return;
+            }
+
+            var confirm = await DisplayAlert("Confirm Delete", $"Are you sure you want to delete {selectedItems.Count} items?", "Yes", "No");
+            if (confirm)
+            {
+                foreach (var selectedItem in selectedItems)
                 {
                     await fileManager.DeleteItemAsync(selectedItem, currentPath, LoadFilesAndDirectories);
                 }
@@ -243,5 +262,21 @@ namespace SortPix.Pages.MainPage
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        private void OnbuttonClickedCutSelected(object? sender, EventArgs e)
+        {
+            
+        }
+
+        private void OnbuttonClickedCopySelected(object? sender, EventArgs e)
+        {
+            
+        }
+
+        private void OnbuttonClickedPasteSelected(object? sender, EventArgs e)
+        { 
+            
+        }
     }
 }
+

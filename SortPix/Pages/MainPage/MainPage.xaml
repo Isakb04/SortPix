@@ -4,12 +4,15 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <Grid x:Name="MainGrid" RowDefinitions="Auto, *, *" ColumnDefinitions="2*,8*">
-        <!-- Custom Header -->
+        <!-- Header -->
         <StackLayout Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" BackgroundColor="#333333" Padding="10">
             <Label Text="SortPix" FontSize="30" TextColor="White" VerticalOptions="Start" Padding="50, 0, 100, 0" />
             <Button Clicked="OnUpButtonClickedBack" Text="Back" HorizontalOptions="Center" />
             <Button Clicked="OnUpButtonClickedRenameSelected" Text="Rename" HorizontalOptions="Center" />
             <Button Clicked="OnbuttonClickedDeleteSelected" Text="Delete" HorizontalOptions="Center" />
+            <Button Clicked="OnbuttonClickedCutSelected" Text="Cut/Move" HorizontalOptions="Center" />
+            <Button Clicked="OnbuttonClickedCopySelected" Text="Copy" HorizontalOptions="Center" />
+            <Button Clicked="OnbuttonClickedPasteSelected" Text="Paste" HorizontalOptions="Center" />
             <Button Clicked="OnbuttonClickedCreateFolder" Text="New Folder" HorizontalOptions="Center" />
             <Button Clicked="OnbuttonClickedCreateFile" Text="New File" HorizontalOptions="Center" />
             <Label Text="Location: " FontSize="15" HorizontalOptions="Center" Padding="30, 0, 0, 0"/>
@@ -76,7 +79,7 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
-                            <Grid ColumnDefinitions="Auto,*" Padding="10">
+                            <Grid ColumnDefinitions="Auto,*,Auto" Padding="10">
                                 <Image
                                     Aspect="AspectFill"
                                     Grid.Column="0"
@@ -88,10 +91,16 @@
                                     Text="{Binding Name}"
                                     VerticalOptions="Center"
                                     HorizontalOptions="StartAndExpand" />
+                                <CheckBox
+                                    Grid.Column="2"
+                                    IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                    VerticalOptions="Center"
+                                    HorizontalOptions="End" />
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer
                                         NumberOfTapsRequired="1"
-                                        Tapped="OnItemSingleTapped" />
+                                        Command="{Binding Source={x:Reference FileListView}, Path=BindingContext.OnItemSingleTappedCommand}"
+                                        CommandParameter="{Binding}" />
                                     <TapGestureRecognizer
                                         NumberOfTapsRequired="2"
                                         Tapped="OnItemDoubleTapped" />
