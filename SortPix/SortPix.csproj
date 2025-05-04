@@ -88,7 +88,7 @@
     </ItemGroup> 
 
     <ItemGroup>
-      <Folder Include="SortPixPyFiles\Processed_Images\airplane\" />
+      <Folder Include="SortPixPyFiles\Processed_Images\" />
     </ItemGroup>
 
 </Project>

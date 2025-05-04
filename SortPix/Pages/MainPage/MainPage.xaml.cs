@@ -50,6 +50,15 @@ namespace SortPix.Pages.MainPage
         {
             var selectedSidebarItem = e.CurrentSelection.FirstOrDefault() as SidebarItem;
             LoadFilesAndDirectories(selectedSidebarItem?.Path);
+            
+            if (selectedSidebarItem?.Name == "SortPix" || selectedSidebarItem?.Name == "OneDrive")
+            {
+                LocationLabel.Text = selectedSidebarItem?.Name;
+            }
+            else
+            {
+                LocationLabel.Text = selectedSidebarItem?.Path;
+            }
         }
 
         private async void LoadFilesAndDirectories(string path)

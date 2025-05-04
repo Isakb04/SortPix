@@ -13,7 +13,7 @@
             <Button Clicked="OnbuttonClickedCreateFolder" Text="New Folder" HorizontalOptions="Center" />
             <Button Clicked="OnbuttonClickedCreateFile" Text="New File" HorizontalOptions="Center" />
             <Label Text="Location: " FontSize="15" HorizontalOptions="Center" Padding="30, 0, 0, 0"/>
-            <Label Text="{Binding CurrentPath}" FontSize="15" HorizontalOptions="Start" TextColor="White" />
+            <Label Text="{Binding CurrentPath}" FontSize="15" HorizontalOptions="Start" TextColor="White" x:Name="LocationLabel"/>
             <SearchBar Placeholder="SearchBar" HorizontalOptions="EndAndExpand" 
                        TextChanged="OnSearchBarTextChanged" />
         </StackLayout>

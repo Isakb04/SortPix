@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using SortPix.Models;
+﻿using SortPix.Models;
 
-namespace SortPix.Pages.MainPage;
+namespace SortPix.Managers;
 
 public class FileManager
 {
@@ -171,12 +167,10 @@ public class FileManager
             ".zip" => "zip_icon.png",
             ".rar" => "rar_icon.png",
             ".exe" => "exe_icon.png",
-            ".docx" => "word_icon.png", // Example for Word files
-            ".doc" => "word_icon.png", // Example for Word files
-            ".xlsx" => "excel_icon.png", // Example for Excel files
-            ".pptx" => "powerpoint_icon.png", // Example for PowerPoint files
-                
-            // programing lang
+            ".docx" => "word_icon.png", 
+            ".doc" => "word_icon.png", 
+            ".xlsx" => "excel_icon.png",
+            ".pptx" => "powerpoint_icon.png",
             ".py" => "python_icon.png",
             ".js" => "javascript_icon.png",
             ".java" => "java_icon.png",

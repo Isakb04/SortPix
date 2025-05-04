@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using SortPix.Models;
 
-namespace SortPix.Pages.MainPage;
+namespace SortPix.Managers;
 
 public class SideBarManager
 {
@@ -9,18 +9,59 @@ public class SideBarManager
 
     public SideBarManager()
     {
-        SidebarItems = new ObservableCollection<SidebarItem>
-        {
-            new SidebarItem { Name = "Desktop", Path = GetSpecialFolderPath(Environment.SpecialFolder.Desktop), IconPath = "desktop_icon.png" },
-            new SidebarItem { Name = "Downloads", Path = Path.Combine(GetSpecialFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"), IconPath = "downloads_icon.png" },
-            new SidebarItem { Name = "Documents", Path = GetSpecialFolderPath(Environment.SpecialFolder.MyDocuments), IconPath = "document_icon.png" },
-            new SidebarItem { Name = "Pictures", Path = GetSpecialFolderPath(Environment.SpecialFolder.MyPictures), IconPath = "photos_icon.png" },
-            new SidebarItem { Name = "SortPix", Path = GetSpecialFolderPath(Environment.SpecialFolder.UserProfile) + @"\Desktop\SortPix\SortPix\SortPixPyFiles\Processed_Images", IconPath = "tagged_photos_icon.png" },
-            new SidebarItem { Name = "Music", Path = GetSpecialFolderPath(Environment.SpecialFolder.MyMusic), IconPath = "music_icon.png" },
-            new SidebarItem { Name = "Videos", Path = GetSpecialFolderPath(Environment.SpecialFolder.MyVideos), IconPath = "movie_icon.png" },
-            new SidebarItem { Name = "Recycle Bin", Path = null, IconPath = "bin_icon.png" },
-            new SidebarItem { Name = "OneDrive", Path = GetSpecialFolderPath(Environment.SpecialFolder.UserProfile) + @"\OneDrive - The University of Winchester", IconPath = "onedrive_icon.png" },
-        };
+        SidebarItems =
+        [
+            new SidebarItem
+            {
+                Name = "Desktop", Path = GetSpecialFolderPath(Environment.SpecialFolder.Desktop),
+                IconPath = "desktop_icon.png"
+            },
+            new SidebarItem
+            {
+                Name = "Downloads",
+                Path = Path.Combine(GetSpecialFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"),
+                IconPath = "downloads_icon.png"
+            },
+            new SidebarItem
+            {
+                Name = "Documents", Path = GetSpecialFolderPath(Environment.SpecialFolder.MyDocuments),
+                IconPath = "document_icon.png"
+            },
+            new SidebarItem
+            {
+                Name = "Pictures", Path = GetSpecialFolderPath(Environment.SpecialFolder.MyPictures),
+                IconPath = "photos_icon.png"
+            },
+            new SidebarItem
+            {
+                Name = "SortPix",
+                Path = GetSpecialFolderPath(Environment.SpecialFolder.UserProfile) +
+                       @"\Desktop\SortPix\SortPix\SortPixPyFiles\Processed_Images",
+                IconPath = "tagged_photos_icon.png"
+            },
+            new SidebarItem
+            {
+                Name = "Music", Path = GetSpecialFolderPath(Environment.SpecialFolder.MyMusic),
+                IconPath = "music_icon.png"
+            },
+            new SidebarItem
+            {
+                Name = "Videos", Path = GetSpecialFolderPath(Environment.SpecialFolder.MyVideos),
+                IconPath = "movie_icon.png"
+            },
+            new SidebarItem
+            {
+                Name = "Recycle Bin", Path = null, IconPath = "bin_icon.png" 
+                
+            },
+            new SidebarItem
+            {
+                Name = "OneDrive",
+                Path = GetSpecialFolderPath(Environment.SpecialFolder.UserProfile) +
+                       @"\OneDrive - The University of Winchester",
+                IconPath = "onedrive_icon.png"
+            }
+        ];
     }
 
     private static string GetSpecialFolderPath(Environment.SpecialFolder folder)
