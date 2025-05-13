@@ -72,7 +72,7 @@ public class FileManager
             }
             catch
             {
-                // Handle rename error
+                Console.WriteLine($"Error renaming item: {item.Path}");
             }
         }
     }
@@ -94,7 +94,7 @@ public class FileManager
         }
         catch
         {
-            // Handle delete error
+            Console.WriteLine($"Error deleting item: {item.Path}");
         }
     }
 
@@ -108,7 +108,7 @@ public class FileManager
         }
         catch
         {
-            // Handle folder creation error
+            Console.WriteLine($"Error creating folder: {newPath}");
         }
     }
 
@@ -122,7 +122,7 @@ public class FileManager
         }
         catch
         {
-            // Handle file creation error
+            Console.WriteLine($"Error creating file: {newPath}");
         }
     }
 
@@ -144,7 +144,7 @@ public class FileManager
             }
             catch
             {
-                // Handle file open error
+                Console.WriteLine($"Error opening file: {item.Path}");
             }
         }
     }
@@ -216,5 +216,68 @@ public class FileManager
             var extensions = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif" };
             return extensions.Contains(Path.GetExtension(filePath).ToLower());
         });
+    }
+    
+    public async Task MoveCutItemsAsync(List<FileSystemItem> itemsToMove, string destinationPath, Action<string> refreshAction)
+    {
+        foreach (var item in itemsToMove)
+        {
+            var newPath = Path.Combine(destinationPath, item.Name);
+            try
+            {
+                if (item.IsDirectory)
+                {
+                    Directory.Move(item.Path, newPath);
+                }
+                else
+                {
+                    File.Move(item.Path, newPath);
+                }
+            }
+            catch
+            {
+                // Handle move error
+            }
+        }
+        refreshAction(destinationPath);
+    }
+    
+    public async Task CopyItemsAsync(List<FileSystemItem> itemsToCopy, string destinationPath, Action<string> refreshAction)
+    {
+        foreach (var item in itemsToCopy)
+        {
+            var newPath = Path.Combine(destinationPath, item.Name);
+            try
+            {
+                if (item.IsDirectory)
+                {
+                    CopyDirectory(item.Path, newPath);
+                }
+                else
+                {
+                    File.Copy(item.Path, newPath, overwrite: true);
+                }
+            }
+            catch
+            {
+                // Handle copy error
+            }
+        }
+        refreshAction(destinationPath);
+    }
+
+    private void CopyDirectory(string sourceDir, string destinationDir)
+    {
+        Directory.CreateDirectory(destinationDir);
+        foreach (var file in Directory.GetFiles(sourceDir))
+        {
+            var destFile = Path.Combine(destinationDir, Path.GetFileName(file));
+            File.Copy(file, destFile, overwrite: true);
+        }
+        foreach (var directory in Directory.GetDirectories(sourceDir))
+        {
+            var destDir = Path.Combine(destinationDir, Path.GetFileName(directory));
+            CopyDirectory(directory, destDir);
+        }
     }
 }

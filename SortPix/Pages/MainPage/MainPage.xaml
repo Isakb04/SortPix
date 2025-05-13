@@ -5,19 +5,26 @@
 
     <Grid x:Name="MainGrid" RowDefinitions="Auto, *, *" ColumnDefinitions="2*,8*">
         <!-- Header -->
-        <StackLayout Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" BackgroundColor="#333333" Padding="10">
+        <StackLayout Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" BackgroundColor="#333333" Padding="7.5" Spacing="3">
             <Label Text="SortPix" FontSize="30" TextColor="White" VerticalOptions="Start" Padding="50, 0, 100, 0" />
-            <Button Clicked="OnUpButtonClickedBack" Text="Back" HorizontalOptions="Center" />
-            <Button Clicked="OnUpButtonClickedRenameSelected" Text="Rename" HorizontalOptions="Center" />
-            <Button Clicked="OnbuttonClickedDeleteSelected" Text="Delete" HorizontalOptions="Center" />
-            <Button Clicked="OnbuttonClickedCutSelected" Text="Cut/Move" HorizontalOptions="Center" />
-            <Button Clicked="OnbuttonClickedCopySelected" Text="Copy" HorizontalOptions="Center" />
-            <Button Clicked="OnbuttonClickedPasteSelected" Text="Paste" HorizontalOptions="Center" />
-            <Button Clicked="OnbuttonClickedCreateFolder" Text="New Folder" HorizontalOptions="Center" />
-            <Button Clicked="OnbuttonClickedCreateFile" Text="New File" HorizontalOptions="Center" />
-            <Label Text="Location: " FontSize="15" HorizontalOptions="Center" Padding="30, 0, 0, 0"/>
-            <Label Text="{Binding CurrentPath}" FontSize="15" HorizontalOptions="Start" TextColor="White" x:Name="LocationLabel"/>
-            <SearchBar Placeholder="SearchBar" HorizontalOptions="EndAndExpand" 
+            <ImageButton Clicked="OnUpButtonClickedBack" Source="back_button.png" ToolTipProperties.Text="Go Back" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
+            <ImageButton Clicked="OnUpButtonClickedRenameSelected" Source="rename_button.png" ToolTipProperties.Text="Rename" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
+            <ImageButton Clicked="OnbuttonClickedDeleteSelected" Source="delete_button.png" ToolTipProperties.Text="Delete" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
+            <ImageButton Clicked="OnbuttonClickedCutSelected" Source="cut_button.png" ToolTipProperties.Text="Cut" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
+            <ImageButton Clicked="OnbuttonClickedCopySelected" Source="copy_button.png" ToolTipProperties.Text="Copy" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
+            <ImageButton Clicked="OnbuttonClickedPasteSelected" Source="paste_button.png" ToolTipProperties.Text="Paste" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
+            <ImageButton Clicked="OnbuttonClickedCreateFolder" Source="create_folder_button.png" ToolTipProperties.Text="Create New Folder" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
+            <ImageButton Clicked="OnbuttonClickedCreateFile" Source="create_file_button.png" ToolTipProperties.Text="Create New File" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
+            <ImageButton Clicked="OnbuttonClickedSelectAll" Source="select_all_button.png" ToolTipProperties.Text="Select All" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
+            <ImageButton Clicked="OnbuttonClickedDeselectAll" Source="deselect_all_button.png" ToolTipProperties.Text="Deselect All" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
+            <SearchBar Placeholder="Search for files or folders..." 
+                       HorizontalOptions="EndAndExpand" 
+                       VerticalOptions="Center" 
+                       BackgroundColor="#444444" 
+                       TextColor="White" 
+                       PlaceholderColor="Gray" 
+                       FontSize="16" 
+                       Margin="10,0,10,0" 
                        TextChanged="OnSearchBarTextChanged" />
         </StackLayout>
 
@@ -79,23 +86,23 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
-                            <Grid ColumnDefinitions="Auto,*,Auto" Padding="10">
-                                <Image
-                                    Aspect="AspectFill"
+                            <Grid ColumnDefinitions="Auto,Auto,*" Padding="10">
+                                <CheckBox
                                     Grid.Column="0"
+                                    IsChecked="{Binding IsSelected}"
+                                    VerticalOptions="Center"
+                                    HorizontalOptions="Start" />
+                                <Image
+                                    Grid.Column="1"
+                                    Aspect="AspectFill"
                                     HeightRequest="40"
                                     WidthRequest="40"
                                     Source="{Binding IconPath}" />
                                 <Label
-                                    Grid.Column="1"
+                                    Grid.Column="2"
                                     Text="{Binding Name}"
                                     VerticalOptions="Center"
                                     HorizontalOptions="StartAndExpand" />
-                                <CheckBox
-                                    Grid.Column="2"
-                                    IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                    VerticalOptions="Center"
-                                    HorizontalOptions="End" />
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer
                                         NumberOfTapsRequired="1"
@@ -110,6 +117,7 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
+            <Label Text="{Binding CurrentPath, StringFormat='Location: {0}'}" FontSize="18" HorizontalOptions="Start" TextColor="White" x:Name="LocationLabel"/>
         </StackLayout>
     </Grid>
 </ContentPage>

@@ -9,11 +9,13 @@ using System.Windows.Input;
 using SortPix.Managers;
 using SortPix.Models;
 
+
 namespace SortPix.Pages.MainPage
 {
     public partial class MainPage : INotifyPropertyChanged
     {
         private string currentPath;
+
         public string CurrentPath
         {
             get => currentPath;
@@ -31,6 +33,9 @@ namespace SortPix.Pages.MainPage
         private List<FileSystemItem> allItems; // Store all items for filtering
         private readonly FileManager fileManager;
         private readonly SideBarManager sideBarManager;
+
+        private List<FileSystemItem> itemsToCut = new List<FileSystemItem>();
+        private List<FileSystemItem> itemsToCopy = new List<FileSystemItem>();
 
         public ICommand OnItemSingleTappedCommand { get; }
 
@@ -55,7 +60,7 @@ namespace SortPix.Pages.MainPage
         {
             var selectedSidebarItem = e.CurrentSelection.FirstOrDefault() as SidebarItem;
             LoadFilesAndDirectories(selectedSidebarItem?.Path);
-            
+
             if (selectedSidebarItem?.Name == "SortPix" || selectedSidebarItem?.Name == "OneDrive")
             {
                 LocationLabel.Text = selectedSidebarItem?.Name;
@@ -91,7 +96,7 @@ namespace SortPix.Pages.MainPage
                 LoadingIndicator.IsVisible = false;
             }
         }
-        
+
         private async void OnUpButtonClickedBack(object sender, EventArgs e)
         {
             var parentDir = Directory.GetParent(currentPath)?.FullName;
@@ -102,12 +107,15 @@ namespace SortPix.Pages.MainPage
 
                 if (currentPath == selectedSidebarDir)
                 {
-                    var confirm = await DisplayAlert("Confirm Directory Navigation", "You are about to leave the selected default directory choices. Do you want to proceed?", "Yes", "No");
+                    var confirm = await DisplayAlert("Confirm Directory Navigation",
+                        "You are about to leave the selected default directory choices. Do you want to proceed?", "Yes",
+                        "No");
                     if (!confirm)
                     {
                         return;
                     }
                 }
+
                 LoadFilesAndDirectories(parentDir);
                 UpdateSortButtonVisibility(); // Update SortButton visibility
             }
@@ -118,15 +126,16 @@ namespace SortPix.Pages.MainPage
             LoadingIndicator.IsVisible = true;
             LoadingIndicator.IsRunning = true;
             // disable all buttons and search
-            MainGrid .IsEnabled = false;
-            
+            MainGrid.IsEnabled = false;
+
             SidebarListView.IsEnabled = false;
             FileListView.IsEnabled = false;
 
             try
             {
                 var sortPixManager = new SortPixManager();
-                string result = await Task.Run(() => sortPixManager.RunSortPixTagger("SortPixPyFiles/Images1", "SortPixPyFiles/Processed_Images"));
+                string result = await Task.Run(() =>
+                    sortPixManager.RunSortPixTagger("SortPixPyFiles/Images1", "SortPixPyFiles/Processed_Images"));
                 System.Diagnostics.Debug.WriteLine(result);
             }
             finally
@@ -140,15 +149,18 @@ namespace SortPix.Pages.MainPage
                 await DisplayAlert("SortPix Tagger", "Sorting completed successfully!", "OK");
             }
         }
-        
-        private void OnbuttonClickedDontSort (object sender, EventArgs e)
-        {
-            
-        }
-        
-        private void OnbuttonClickedManualSort (object sender, EventArgs e)
-        {
 
+        private void OnbuttonClickedDontSort(object sender, EventArgs e)
+        {
+            // Handle the "Don't Sort" button click
+            // You can implement any logic you want here
+            // For example, you might want to close the sort dialog or reset some state
+        }
+
+        private async void OnbuttonClickedManualSort(object sender, EventArgs e)
+        {
+            // var manualSortPopup = new ManualSortPopup();
+            // await PopupNavigation.Instance.PushAsync(manualSortPopup);
         }
 
         private void OnItemSingleTapped(FileSystemItem tappedItem)
@@ -159,6 +171,7 @@ namespace SortPix.Pages.MainPage
                 {
                     item.IsSelected = false; // Deselect all other items
                 }
+
                 tappedItem.IsSelected = true; // Select the tapped item
                 FileListView.SelectedItem = tappedItem;
             }
@@ -202,7 +215,8 @@ namespace SortPix.Pages.MainPage
                 return;
             }
 
-            var confirm = await DisplayAlert("Confirm Delete", $"Are you sure you want to delete {selectedItems.Count} items?", "Yes", "No");
+            var confirm = await DisplayAlert("Confirm Delete",
+                $"Are you sure you want to delete {selectedItems.Count} items?", "Yes", "No");
             if (confirm)
             {
                 foreach (var selectedItem in selectedItems)
@@ -248,35 +262,133 @@ namespace SortPix.Pages.MainPage
             if (appearingItem != null && !appearingItem.IsImage && !string.IsNullOrEmpty(appearingItem.Path))
             {
                 appearingItem.IsImage = await fileManager.IsImageFileAsync(appearingItem.Path);
-                appearingItem.IconPath = appearingItem.IsImage ? appearingItem.Path : fileManager.GetFileIcon(appearingItem.Path);
+                appearingItem.IconPath = appearingItem.IsImage
+                    ? appearingItem.Path
+                    : fileManager.GetFileIcon(appearingItem.Path);
             }
         }
 
         private void UpdateSortButtonVisibility()
         {
-            SortButton.IsVisible = !string.IsNullOrEmpty(CurrentPath) && CurrentPath.Contains("Processed_Images");
+            if (!string.IsNullOrEmpty(currentPath))
+            {
+                var selectedSidebarItem = SidebarListView.SelectedItem as SidebarItem;
+                if (selectedSidebarItem?.Name == "SortPix" || selectedSidebarItem?.Name == "Pictures")
+                {
+                    SortButton.IsVisible = true;
+                }
+                else
+                {
+                    SortButton.IsVisible = false;
+                }
+            }
+            else
+            {
+                SortButton.IsVisible = false;
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private void OnbuttonClickedCutSelected(object? sender, EventArgs e)
+        private void OnbuttonClickedCutSelected(object sender, EventArgs e)
         {
-            
+            itemsToCut = Items.Where(item => item.IsSelected).ToList();
+            if (!itemsToCut.Any())
+            {
+                DisplayAlert("Error", "No items selected to cut.", "OK");
+            }
+            else
+            {
+                foreach (var item in itemsToCut)
+                {
+                    item.IsSelected = false; // Deselect items after marking them for cut
+                }
+
+                FileListView.SelectedItem = null;
+                DisplayAlert("Cut", $"{itemsToCut.Count} item(s) marked for moving.", "OK");
+            }
         }
 
-        private void OnbuttonClickedCopySelected(object? sender, EventArgs e)
+        private async void OnbuttonClickedCopySelected(object? sender, EventArgs e)
         {
-            
+            itemsToCopy = Items.Where(item => item.IsSelected).ToList();
+            if (!itemsToCopy.Any())
+            {
+                await DisplayAlert("Error", "No items selected to copy.", "OK");
+                return;
+            }
+
+            foreach (var item in itemsToCopy)
+            {
+                item.IsSelected = false; // Deselect items after marking them for copy
+            }
+
+            FileListView.SelectedItem = null;
+            await DisplayAlert("Copy", $"{itemsToCopy.Count} item(s) marked for copying.", "OK");
         }
 
-        private void OnbuttonClickedPasteSelected(object? sender, EventArgs e)
-        { 
-            
+        private async void OnbuttonClickedPasteSelected(object sender, EventArgs e)
+        {
+            if (itemsToCut.Any())
+            {
+                try
+                {
+                    await fileManager.MoveCutItemsAsync(itemsToCut, currentPath, LoadFilesAndDirectories);
+                    itemsToCut.Clear(); // Clear the cut list after moving
+                    await DisplayAlert("Paste", "Items moved successfully.", "OK");
+                }
+                catch
+                {
+                    await DisplayAlert("Error", "Failed to move items.", "OK");
+                }
+            }
+            else if (itemsToCopy.Any())
+            {
+                try
+                {
+                    await fileManager.CopyItemsAsync(itemsToCopy, currentPath, LoadFilesAndDirectories);
+                    itemsToCopy.Clear(); // Clear the copy list after copying
+                    await DisplayAlert("Paste", "Items copied successfully.", "OK");
+                }
+                catch
+                {
+                    await DisplayAlert("Error", "Failed to copy items.", "OK");
+                }
+            }
+            else
+            {
+                await DisplayAlert("Error", "No items to paste. Use 'Cut' or 'Copy' first.", "OK");
+            }
+        }
+
+        // select all items in the list
+        private void OnbuttonClickedSelectAll(object? sender, EventArgs e)
+        {
+            foreach (var item in Items)
+            {
+                item.IsSelected = true; // Select both files and directories
+            }
+
+            // Refresh the ListView to ensure checkboxes reflect the changes
+            FileListView.ItemsSource = null;
+            FileListView.ItemsSource = Items;
+        }
+
+        private void OnbuttonClickedDeselectAll(object? sender, EventArgs e)
+        {
+            foreach (var item in Items)
+            {
+                item.IsSelected = false; // Deselect both files and directories
+            }
+
+            // Refresh the ListView to ensure checkboxes reflect the changes
+            FileListView.ItemsSource = null;
+            FileListView.ItemsSource = Items;
         }
     }
 }
-
