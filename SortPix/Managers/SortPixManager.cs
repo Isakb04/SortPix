@@ -46,12 +46,22 @@ public class SortPixManager
 
     public string RunSortPixTagger(string imageDir, string outputDir)
     {
-        // Adjust the path to go back to the SortPix directory and then down to SortPixPyFiles
-        string scriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "SortPixPyFiles", "SortPixTagger.py");
-        string arguments = $"\"{imageDir}\" \"{outputDir}\"";
-        
-        Console.WriteLine("Executing Python script...");
-        string result = ExecutePythonScript(scriptPath, arguments);
+        // Get the directory the app is running from
+        string binPath = AppContext.BaseDirectory;
+        Console.WriteLine("binPath: " + binPath);
+
+        // Go up 3 levels to get to project root
+        string projectRoot = Directory.GetParent(binPath)?.Parent?.Parent?.Parent?.Parent?.FullName;
+        Console.WriteLine("projectRoot: " + projectRoot);
+
+        if (projectRoot == null)
+        {
+            throw new Exception("Failed to find project root.");
+        }
+
+        // Combine with relative path to the Python file
+        string scriptPath = Path.Combine(projectRoot, "SortPixPyFiles", "SortPixTagger.py");
+        Console.WriteLine("scriptPath: " + scriptPath);
 
         // Check if the file exists
         if (!File.Exists(scriptPath))
@@ -59,9 +69,15 @@ public class SortPixManager
             throw new FileNotFoundException($"Python script not found at: {scriptPath}");
         }
 
+        string arguments = $"\"{imageDir}\" \"{outputDir}\"";
+
+        Console.WriteLine("Executing Python script...");
+        string result = ExecutePythonScript(scriptPath, arguments);
+
         Console.WriteLine("Python script executed. Output:");
-        Console.WriteLine(result); // Log the output
+        Console.WriteLine(result);
 
         return result;
     }
+
 }

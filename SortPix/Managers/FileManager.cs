@@ -1,8 +1,29 @@
-﻿using SortPix.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
+using SortPix.Models;
 
 namespace SortPix.Managers;
 
-public class FileManager
+// Define the interface for testability
+public interface IFileManager
+{
+    Task<List<FileSystemItem>> GetFilesAndDirectoriesAsync(string path);
+    Task RenameItemAsync(FileSystemItem item, string newName, string currentPath, Action<string> refreshAction);
+    Task DeleteItemAsync(FileSystemItem item, string currentPath, Action<string> refreshAction);
+    Task CreateFolderAsync(string currentPath, string folderName, Action<string> refreshAction);
+    Task CreateFileAsync(string currentPath, string fileName, Action<string> refreshAction);
+    void OpenItem(FileSystemItem item, Action<string> refreshAction);
+    string GetFileIcon(string filePath);
+    Task<bool> IsImageFileAsync(string filePath);
+    Task MoveCutItemsAsync(List<FileSystemItem> itemsToMove, string destinationPath, Action<string> refreshAction);
+    Task CopyItemsAsync(List<FileSystemItem> itemsToCopy, string destinationPath, Action<string> refreshAction);
+}
+
+public class FileManager : IFileManager
 {
     public async Task<List<FileSystemItem>> GetFilesAndDirectoriesAsync(string path)
     {
@@ -205,7 +226,7 @@ public class FileManager
 
     private bool IsImageFile(string filePath)
     {
-        var extensions = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif" };
+        var extensions = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".raw" };
         return extensions.Contains(Path.GetExtension(filePath).ToLower());
     }
 
@@ -213,7 +234,7 @@ public class FileManager
     {
         return await Task.Run(() =>
         {
-            var extensions = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif" };
+            var extensions = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".raw" };
             return extensions.Contains(Path.GetExtension(filePath).ToLower());
         });
     }

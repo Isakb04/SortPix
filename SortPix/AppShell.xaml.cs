@@ -1,4 +1,6 @@
-﻿namespace SortPix;
+﻿using Microsoft.Maui.Controls;
+
+namespace SortPix;
 
 public partial class AppShell : Shell
 {

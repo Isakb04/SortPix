@@ -1,123 +1,384 @@
 ﻿<ContentPage
     x:Class="SortPix.Pages.MainPage.MainPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:local="clr-namespace:SortPix.Pages.MainPage"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <Grid x:Name="MainGrid" RowDefinitions="Auto, *, *" ColumnDefinitions="2*,8*">
-        <!-- Header -->
-        <StackLayout Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" BackgroundColor="#333333" Padding="7.5" Spacing="3">
-            <Label Text="SortPix" FontSize="30" TextColor="White" VerticalOptions="Start" Padding="50, 0, 100, 0" />
-            <ImageButton Clicked="OnUpButtonClickedBack" Source="back_button.png" ToolTipProperties.Text="Go Back" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
-            <ImageButton Clicked="OnUpButtonClickedRenameSelected" Source="rename_button.png" ToolTipProperties.Text="Rename" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
-            <ImageButton Clicked="OnbuttonClickedDeleteSelected" Source="delete_button.png" ToolTipProperties.Text="Delete" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
-            <ImageButton Clicked="OnbuttonClickedCutSelected" Source="cut_button.png" ToolTipProperties.Text="Cut" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
-            <ImageButton Clicked="OnbuttonClickedCopySelected" Source="copy_button.png" ToolTipProperties.Text="Copy" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
-            <ImageButton Clicked="OnbuttonClickedPasteSelected" Source="paste_button.png" ToolTipProperties.Text="Paste" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
-            <ImageButton Clicked="OnbuttonClickedCreateFolder" Source="create_folder_button.png" ToolTipProperties.Text="Create New Folder" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
-            <ImageButton Clicked="OnbuttonClickedCreateFile" Source="create_file_button.png" ToolTipProperties.Text="Create New File" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
-            <ImageButton Clicked="OnbuttonClickedSelectAll" Source="select_all_button.png" ToolTipProperties.Text="Select All" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
-            <ImageButton Clicked="OnbuttonClickedDeselectAll" Source="deselect_all_button.png" ToolTipProperties.Text="Deselect All" HorizontalOptions="Center" Scale="0.75" BackgroundColor="Transparent"/>
-            <SearchBar Placeholder="Search for files or folders..." 
-                       HorizontalOptions="EndAndExpand" 
-                       VerticalOptions="Center" 
-                       BackgroundColor="#444444" 
-                       TextColor="White" 
-                       PlaceholderColor="Gray" 
-                       FontSize="16" 
-                       Margin="10,0,10,0" 
-                       TextChanged="OnSearchBarTextChanged" />
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <local:BoolToOpacityConverter x:Key="BoolToOpacityConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid
+        ColumnDefinitions="2*,8*"
+        RowDefinitions="Auto, *, *"
+        x:FieldModifier="public"
+        x:Name="MainGrid">
+        <!--  Header  -->
+        <StackLayout
+            BackgroundColor="#333333"
+            Grid.ColumnSpan="2"
+            Grid.Row="0"
+            Orientation="Horizontal"
+            Padding="7.5"
+            Spacing="3">
+            <Label
+                FontAttributes="Bold"
+                FontAutoScalingEnabled="True"
+                FontSize="30"
+                Padding="50,0,100,0"
+                Text="SortPix"
+                TextColor="White"
+                VerticalOptions="Start" />
+            <ImageButton
+                BackgroundColor="Transparent"
+                Clicked="OnUpButtonClickedBack"
+                HorizontalOptions="Center"
+                Scale="0.75"
+                Source="back_button.png"
+                ToolTipProperties.Text="Go Back">
+                <ImageButton.Behaviors>
+                    <toolkit:IconTintColorBehavior TintColor="White" />
+                </ImageButton.Behaviors>
+            </ImageButton>
+            <ImageButton
+                BackgroundColor="Transparent"
+                Clicked="OnUpButtonClickedRenameSelected"
+                HorizontalOptions="Center"
+                Scale="0.75"
+                Source="rename_button.png"
+                ToolTipProperties.Text="Rename">
+                <ImageButton.Behaviors>
+                    <toolkit:IconTintColorBehavior TintColor="White" />
+                </ImageButton.Behaviors>
+            </ImageButton>
+            <ImageButton
+                BackgroundColor="Transparent"
+                Clicked="OnbuttonClickedDeleteSelected"
+                HorizontalOptions="Center"
+                Scale="0.75"
+                Source="delete_button.png"
+                ToolTipProperties.Text="Delete">
+                <ImageButton.Behaviors>
+                    <toolkit:IconTintColorBehavior TintColor="White" />
+                </ImageButton.Behaviors>
+            </ImageButton>
+            <ImageButton
+                BackgroundColor="Transparent"
+                Clicked="OnbuttonClickedCutSelected"
+                HorizontalOptions="Center"
+                Scale="0.75"
+                Source="cut_button.png"
+                ToolTipProperties.Text="Cut">
+                <ImageButton.Behaviors>
+                    <toolkit:IconTintColorBehavior TintColor="White" />
+                </ImageButton.Behaviors>
+            </ImageButton>
+            <ImageButton
+                BackgroundColor="Transparent"
+                Clicked="OnbuttonClickedCopySelected"
+                HorizontalOptions="Center"
+                Scale="0.75"
+                Source="copy_button.png"
+                ToolTipProperties.Text="Copy">
+                <ImageButton.Behaviors>
+                    <toolkit:IconTintColorBehavior TintColor="White" />
+                </ImageButton.Behaviors>
+            </ImageButton>
+            <ImageButton
+                BackgroundColor="Transparent"
+                Clicked="OnbuttonClickedPasteSelected"
+                HorizontalOptions="Center"
+                Scale="0.75"
+                Source="paste_button.png"
+                ToolTipProperties.Text="Paste">
+                <ImageButton.Behaviors>
+                    <toolkit:IconTintColorBehavior TintColor="White" />
+                </ImageButton.Behaviors>
+            </ImageButton>
+            <ImageButton
+                BackgroundColor="Transparent"
+                Clicked="OnbuttonClickedCreateFolder"
+                HorizontalOptions="Center"
+                Scale="0.75"
+                Source="create_folder_button.png"
+                ToolTipProperties.Text="Create New Folder">
+                <ImageButton.Behaviors>
+                    <toolkit:IconTintColorBehavior TintColor="White" />
+                </ImageButton.Behaviors>
+            </ImageButton>
+            <ImageButton
+                BackgroundColor="Transparent"
+                Clicked="OnbuttonClickedCreateFile"
+                HorizontalOptions="Center"
+                Scale="0.75"
+                Source="create_file_button.png"
+                ToolTipProperties.Text="Create New File">
+                <ImageButton.Behaviors>
+                    <toolkit:IconTintColorBehavior TintColor="White" />
+                </ImageButton.Behaviors>
+            </ImageButton>
+            <ImageButton
+                BackgroundColor="Transparent"
+                Clicked="OnbuttonClickedSelectAll"
+                HorizontalOptions="Center"
+                Scale="0.75"
+                Source="select_all_button.png"
+                ToolTipProperties.Text="Select All">
+                <ImageButton.Behaviors>
+                    <toolkit:IconTintColorBehavior TintColor="White" />
+                </ImageButton.Behaviors>
+            </ImageButton>
+            <ImageButton
+                BackgroundColor="Transparent"
+                Clicked="OnbuttonClickedDeselectAll"
+                HorizontalOptions="Center"
+                Scale="0.75"
+                Source="deselect_all_button.png"
+                ToolTipProperties.Text="Deselect All">
+                <ImageButton.Behaviors>
+                    <toolkit:IconTintColorBehavior TintColor="White" />
+                </ImageButton.Behaviors>
+            </ImageButton>
+            <SearchBar
+                BackgroundColor="#444444"
+                FontSize="16"
+                HorizontalOptions="EndAndExpand"
+                Margin="10,0,10,0"
+                Placeholder="Search for files or folders..."
+                PlaceholderColor="Gray"
+                TextChanged="OnSearchBarTextChanged"
+                TextColor="White"
+                VerticalOptions="Center" />
         </StackLayout>
 
-  <Grid Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" BackgroundColor="#333333">
-      <CollectionView
-          SelectionMode="Single"
-          x:Name="SidebarListView">
-          <CollectionView.SelectionChanged>OnSidebarItemSelected</CollectionView.SelectionChanged>
-          <CollectionView.ItemTemplate>
-              <DataTemplate>
-                  <Grid Padding="10">
-                      <Grid.ColumnDefinitions>
-                          <ColumnDefinition Width="Auto" />
-                          <ColumnDefinition Width="*" />
-                      </Grid.ColumnDefinitions>
-                      <Image
-                          Grid.Column="0"
-                          Source="{Binding IconPath}"
-                          HeightRequest="45"
-                          WidthRequest="45"
-                          VerticalOptions="Center" />
-                      <Label
-                          Grid.Column="1"
-                          HorizontalOptions="StartAndExpand"
-                          Text="{Binding Name}"
-                          VerticalOptions="Center" />
-                  </Grid>
-              </DataTemplate>
-          </CollectionView.ItemTemplate>
-      </CollectionView>
-    <StackLayout x:Name="SortButton" HorizontalOptions="FillAndExpand" VerticalOptions="End">
-        <Button
-            Text="Auto Sort Pictures"
-            VerticalOptions="End"
-            HorizontalOptions="FillAndExpand"
-            Clicked="OnbuttonClickedSort" />
-        <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" VerticalOptions="End">
-            <Button
-                Text="Dont Tag"
-                HorizontalOptions="FillAndExpand"
-                Clicked="OnbuttonClickedDontSort" />
-            <Button
-                Text="Manual Sort"
-                HorizontalOptions="FillAndExpand"
-                Clicked="OnbuttonClickedManualSort" />
-        </StackLayout>
-    </StackLayout>
-  </Grid>
+        <!--  Sidebar  -->
+        <ScrollView
+            BackgroundColor="#333333"
+            Grid.Column="0"
+            Grid.Row="1"
+            Grid.RowSpan="2"
+            x:Name="SideBarScrollView">
+            <VerticalStackLayout>
+                <CollectionView SelectionMode="Single" x:Name="SidebarListView">
+                    <CollectionView.SelectionChanged>OnSidebarItemSelected</CollectionView.SelectionChanged>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Padding="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Image
+                                    Grid.Column="0"
+                                    HeightRequest="45"
+                                    Source="{Binding IconPath}"
+                                    VerticalOptions="Center"
+                                    WidthRequest="45" />
+                                <Label
+                                    Grid.Column="1"
+                                    HorizontalOptions="StartAndExpand"
+                                    Text="{Binding Name}"
+                                    VerticalOptions="Center" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <!--  Dropdown for Sort Manager (only visible for Pictures or SortPix)  -->
+                <Frame
+                    BackgroundColor="Transparent"
+                    HasShadow="False"
+                    IsVisible="False"
+                    Margin="0,0,0,0"
+                    Padding="0"
+                    x:Name="SortManagerDropdown">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnSortManagerDropdownTapped" />
+                        <PointerGestureRecognizer PointerEntered="OnPointerEntered" PointerExited="OnPointerExited" />
+                    </Frame.GestureRecognizers>
+                    <Grid Padding="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Image
+                            Grid.Column="0"
+                            HeightRequest="45"
+                            Source="sort_manager_dropdown_icon.png"
+                            VerticalOptions="Center"
+                            WidthRequest="45" />
+                        <Label
+                            Grid.Column="1"
+                            HorizontalOptions="StartAndExpand"
+                            Text="Sort Manager"
+                            VerticalOptions="Center" />
+                    </Grid>
+                </Frame>
+                <StackLayout
+                    IsVisible="False"
+                    Orientation="Vertical"
+                    Padding="30,0,0,0"
+                    Spacing="0"
+                    x:Name="SortManagerDropdownPanel">
+                    <Frame
+                        BackgroundColor="Transparent"
+                        HasShadow="False"
+                        IsVisible="False"
+                        Margin="0,0,0,0"
+                        Padding="0"
+                        x:Name="AutoSortFrame">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnbuttonClickedSort" />
+                            <PointerGestureRecognizer PointerEntered="OnPointerEntered" PointerExited="OnPointerExited" />
+                        </Frame.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*" Padding="10">
+                            <Image
+                                Grid.Column="0"
+                                HeightRequest="35"
+                                Source="auto_sorting_icon.png"
+                                VerticalOptions="Center"
+                                WidthRequest="35" />
+                            <Label
+                                BackgroundColor="Transparent"
+                                FontAttributes="None"
+                                Grid.Column="1"
+                                HorizontalOptions="StartAndExpand"
+                                Padding="10,0,0,0"
+                                Text="Auto Sort"
+                                TextColor="White"
+                                VerticalOptions="Center" />
+                        </Grid>
+                    </Frame>
+                    <Frame
+                        BackgroundColor="Transparent"
+                        HasShadow="False"
+                        IsEnabled="{Binding ManualSortEnabled}"
+                        Margin="0,0,0,0"
+                        Opacity="{Binding ManualSortEnabled, Converter={StaticResource BoolToOpacityConverter}}"
+                        Padding="0"
+                        x:Name="ManualSortFrame">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnbuttonClickedManualSort" />
+                            <PointerGestureRecognizer PointerEntered="OnPointerEntered" PointerExited="OnPointerExited" />
+                        </Frame.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*" Padding="10">
+                            <Image
+                                Grid.Column="0"
+                                HeightRequest="35"
+                                Source="manual_sorting_icon.png"
+                                VerticalOptions="Center"
+                                WidthRequest="35" />
+                            <Label
+                                BackgroundColor="Transparent"
+                                FontAttributes="None"
+                                Grid.Column="1"
+                                HorizontalOptions="StartAndExpand"
+                                Padding="10,0,0,0"
+                                Text="Manual Sort"
+                                TextColor="White"
+                                VerticalOptions="Center" />
+                        </Grid>
+                    </Frame>
+                    <Frame
+                        BackgroundColor="Transparent"
+                        HasShadow="False"
+                        IsEnabled="{Binding DontTagEnabled}"
+                        Margin="0,0,0,0"
+                        Opacity="{Binding DontTagEnabled, Converter={StaticResource BoolToOpacityConverter}}"
+                        Padding="0"
+                        x:Name="DontTagFrame">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnbuttonClickedDontSort" />
+                            <PointerGestureRecognizer PointerEntered="OnPointerEntered" PointerExited="OnPointerExited" />
+                        </Frame.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*" Padding="10">
+                            <Image
+                                Grid.Column="0"
+                                HeightRequest="35"
+                                Source="dont_sort_icon.png"
+                                VerticalOptions="Center"
+                                WidthRequest="35" />
+                            <Label
+                                BackgroundColor="Transparent"
+                                FontAttributes="None"
+                                Grid.Column="1"
+                                HorizontalOptions="StartAndExpand"
+                                Padding="10,0,0,0"
+                                Text="Don't Tag"
+                                TextColor="White"
+                                VerticalOptions="Center" />
+                        </Grid>
+                    </Frame>
+                </StackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
 
-        <!-- Main Content -->
-        <StackLayout Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" BackgroundColor="#797979">
-            <ActivityIndicator 
-                x:Name="LoadingIndicator" 
-                IsRunning="False" 
-                IsVisible="False"   
+        <!--  Main Content  -->
+        <StackLayout
+            BackgroundColor="#797979"
+            Grid.Column="1"
+            Grid.Row="1"
+            Grid.RowSpan="2">
+            <ActivityIndicator
+                HorizontalOptions="Center"
+                IsRunning="False"
+                IsVisible="False"
                 VerticalOptions="Center"
-                HorizontalOptions="Center" />
-            <ListView x:Name="FileListView" CachingStrategy="RecycleElement">
+                x:Name="LoadingIndicator" />
+            <ListView
+                CachingStrategy="RecycleElement"
+                x:FieldModifier="public"
+                x:Name="FileListView">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>
                             <Grid ColumnDefinitions="Auto,Auto,*" Padding="10">
                                 <CheckBox
                                     Grid.Column="0"
+                                    HorizontalOptions="Start"
                                     IsChecked="{Binding IsSelected}"
-                                    VerticalOptions="Center"
-                                    HorizontalOptions="Start" />
+                                    VerticalOptions="Center" />
                                 <Image
-                                    Grid.Column="1"
                                     Aspect="AspectFill"
+                                    Grid.Column="1"
                                     HeightRequest="40"
-                                    WidthRequest="40"
-                                    Source="{Binding IconPath}" />
+                                    Source="{Binding IconPath}"
+                                    WidthRequest="40" />
                                 <Label
                                     Grid.Column="2"
+                                    HorizontalOptions="StartAndExpand"
                                     Text="{Binding Name}"
-                                    VerticalOptions="Center"
-                                    HorizontalOptions="StartAndExpand" />
+                                    VerticalOptions="Center" />
+                                <ImageButton
+                                    BackgroundColor="Transparent"
+                                    Clicked="DisableDontSort"
+                                    Grid.Column="3"
+                                    HorizontalOptions="Center"
+                                    IsVisible="False"
+                                    Scale="0.75"
+                                    Source="dont_tag_sign_icon.png"
+                                    ToolTipProperties.Text="Remove Don't Tag"
+                                    x:Name="TaggedDontTag" />
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer
-                                        NumberOfTapsRequired="1"
                                         Command="{Binding Source={x:Reference FileListView}, Path=BindingContext.OnItemSingleTappedCommand}"
-                                        CommandParameter="{Binding}" />
-                                    <TapGestureRecognizer
-                                        NumberOfTapsRequired="2"
-                                        Tapped="OnItemDoubleTapped" />
+                                        CommandParameter="{Binding}"
+                                        NumberOfTapsRequired="1" />
+                                    <TapGestureRecognizer NumberOfTapsRequired="2" Tapped="OnItemDoubleTapped" />
                                 </Grid.GestureRecognizers>
                             </Grid>
                         </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            <Label Text="{Binding CurrentPath, StringFormat='Location: {0}'}" FontSize="18" HorizontalOptions="Start" TextColor="White" x:Name="LocationLabel"/>
+            <Label
+                FontSize="18"
+                HorizontalOptions="Start"
+                Text="{Binding CurrentPath, StringFormat='Location: {0}'}"
+                TextColor="White"
+                x:Name="LocationLabel" />
         </StackLayout>
     </Grid>
 </ContentPage>

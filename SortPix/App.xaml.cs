@@ -1,4 +1,8 @@
-﻿namespace SortPix;
+﻿using Microsoft.Maui;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Devices;
+
+namespace SortPix;
 
 public partial class App : Application
 {
@@ -22,6 +26,7 @@ public partial class App : Application
         window.Width = newWidth;
         window.Height = newHeight;
 
+        window.Title = "SortPix File Manager";
 
         return window;
     }

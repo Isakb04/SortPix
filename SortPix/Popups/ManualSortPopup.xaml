@@ -1,0 +1,41 @@
+<toolkit:Popup
+    x:Class="SortPix.Popups.ManualSortPopup"
+    Color="#444444"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    Size="400, 600">
+
+    <VerticalStackLayout Padding="10" Spacing="10">
+        <Label Text="Selected Image:" FontSize="16" TextColor="White" HorizontalTextAlignment="Center"/>
+        <Image x:Name="SelectedImage" WidthRequest="100" HeightRequest="100" Aspect="AspectFill" Source="{Binding SelectedImageSource}" />
+        <SearchBar Placeholder="Search Tags"
+                   HorizontalOptions="Fill"
+                   VerticalOptions="Center"
+                   BackgroundColor="#444444"
+                   TextColor="White"
+                   PlaceholderColor="Gray"
+                   FontSize="16"
+                   Margin="10,0,10,0"
+                   TextChanged="OnSearchBarTextChangedTags" />
+        <Label Text="Manual Sort" FontSize="24" HorizontalOptions="Center" TextColor="#444444" />
+        <Label Text="Select tags:" FontSize="16" TextColor="White" />
+        <ScrollView>
+            <CollectionView x:Name="TagsCollectionView"
+                            SelectionMode="Multiple"
+                            ItemsSource="{Binding FilteredTags}"
+                            SelectedItems="{Binding SelectedTags, Mode=TwoWay}"
+                            SelectionChanged="TagsCollectionView_SelectionChanged">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding .}" TextColor="White" />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </ScrollView>
+        <Label Text="Selected tags:" FontSize="16" TextColor="White" />
+        <Label x:Name="SelectedTagsLabel" FontSize="14" TextColor="White"/>
+        <Button Text="Close" Clicked="OnCloseButtonClicked" />
+        <Button Text="Save" Clicked="OnSaveButtonClicked" />
+    </VerticalStackLayout>
+</toolkit:Popup>

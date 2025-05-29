@@ -1,14 +1,18 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Windows.Input;
 using SortPix.Managers;
 using SortPix.Models;
-
+using CommunityToolkit.Maui.Views;
+using Microsoft.Maui.Controls;
+using SortPix.Popups;
 
 namespace SortPix.Pages.MainPage
 {
@@ -31,7 +35,7 @@ namespace SortPix.Pages.MainPage
 
         public ObservableCollection<FileSystemItem> Items { get; set; }
         private List<FileSystemItem> allItems; // Store all items for filtering
-        private readonly FileManager fileManager;
+        private readonly IFileManager fileManager;
         private readonly SideBarManager sideBarManager;
 
         private List<FileSystemItem> itemsToCut = new List<FileSystemItem>();
@@ -39,14 +43,30 @@ namespace SortPix.Pages.MainPage
 
         public ICommand OnItemSingleTappedCommand { get; }
 
-        public MainPage()
+        // Add properties for button enabled states
+        private bool manualSortEnabled;
+        public bool ManualSortEnabled
+        {
+            get => manualSortEnabled;
+            set { manualSortEnabled = value; OnPropertyChanged(); }
+        }
+
+        private bool _dontTagEnabled;
+        public bool DontTagEnabled
+        {
+            get => _dontTagEnabled;
+            set { _dontTagEnabled = value; OnPropertyChanged(); }
+        }
+
+        public MainPage(IFileManager fileManager = null)
         {
             InitializeComponent();
             BindingContext = this; // Set BindingContext to the MainPage itself
             Items = new ObservableCollection<FileSystemItem>();
             allItems = new List<FileSystemItem>();
-            fileManager = new FileManager();
+            this.fileManager = fileManager ?? new FileManager();
             sideBarManager = new SideBarManager();
+            SidebarListView.SelectedItem = sideBarManager.SidebarItems.FirstOrDefault();
 
             OnItemSingleTappedCommand = new Command<FileSystemItem>(OnItemSingleTapped);
 
@@ -54,21 +74,22 @@ namespace SortPix.Pages.MainPage
             SidebarListView.ItemsSource = sideBarManager.SidebarItems;
             FileListView.ItemAppearing += OnFileItemAppearing;
             LoadFilesAndDirectories(sideBarManager.SidebarItems.FirstOrDefault()?.Path);
+            UpdateSortManagerDropdownVisibility();
+            _ = UpdateManualAndDontTagState(); // Now async
         }
 
         private void OnSidebarItemSelected(object sender, SelectionChangedEventArgs e)
         {
             var selectedSidebarItem = e.CurrentSelection.FirstOrDefault() as SidebarItem;
+            if (selectedSidebarItem != null && selectedSidebarItem.Name == "Sort Manager")
+            {
+                // Only show/hide dropdown, do not navigate
+                UpdateSortManagerDropdownVisibility();
+                return;
+            }
+            FileListView.SelectedItem = null; // Unselect any selected item when changing directory
             LoadFilesAndDirectories(selectedSidebarItem?.Path);
-
-            if (selectedSidebarItem?.Name == "SortPix" || selectedSidebarItem?.Name == "OneDrive")
-            {
-                LocationLabel.Text = selectedSidebarItem?.Name;
-            }
-            else
-            {
-                LocationLabel.Text = selectedSidebarItem?.Path;
-            }
+            UpdateSortManagerDropdownVisibility();
         }
 
         private async void LoadFilesAndDirectories(string path)
@@ -76,10 +97,22 @@ namespace SortPix.Pages.MainPage
             Items.Clear();
             allItems.Clear();
             CurrentPath = path; // Update CurrentPath for binding
-            UpdateSortButtonVisibility(); // Update SortButton visibility
+            UpdateSortManagerDropdownVisibility(); // Update SortManagerDropdownPanel visibility
 
             LoadingIndicator.IsVisible = true;
             LoadingIndicator.IsRunning = true;
+            CurrentPath = path; // Update CurrentPath for binding
+
+            // Update location label
+            var selectedSidebarItem = SidebarListView.SelectedItem as SidebarItem;
+            if (selectedSidebarItem != null && (selectedSidebarItem.Name == "SortPix" || selectedSidebarItem.Name == "OneDrive"))
+            {
+                LocationLabel.Text = selectedSidebarItem.Name;
+            }
+            else
+            {
+                LocationLabel.Text = path ?? string.Empty;
+            }
 
             try
             {
@@ -95,6 +128,7 @@ namespace SortPix.Pages.MainPage
                 LoadingIndicator.IsRunning = false;
                 LoadingIndicator.IsVisible = false;
             }
+            await UpdateManualAndDontTagState(); // Await async update after loading
         }
 
         private async void OnUpButtonClickedBack(object sender, EventArgs e)
@@ -117,7 +151,7 @@ namespace SortPix.Pages.MainPage
                 }
 
                 LoadFilesAndDirectories(parentDir);
-                UpdateSortButtonVisibility(); // Update SortButton visibility
+                UpdateSortManagerDropdownVisibility(); // Update SortManagerDropdownPanel visibility
             }
         }
 
@@ -130,7 +164,9 @@ namespace SortPix.Pages.MainPage
 
             SidebarListView.IsEnabled = false;
             FileListView.IsEnabled = false;
-
+            SortManagerDropdown.IsEnabled = false;
+            SortManagerDropdownPanel.IsEnabled = false;
+            SortManagerDropdownPanel.IsVisible = false;
             try
             {
                 var sortPixManager = new SortPixManager();
@@ -145,22 +181,99 @@ namespace SortPix.Pages.MainPage
                 LoadFilesAndDirectories(currentPath);
                 SidebarListView.IsEnabled = true;
                 FileListView.IsEnabled = true;
+                SortManagerDropdown.IsEnabled = true;
+                SortManagerDropdownPanel.IsEnabled = true;
+                SortManagerDropdownPanel.IsVisible = true;
+                await Task.Delay(100); // Wait for the UI to update
+                await SideBarScrollView.ScrollToAsync(0, 10000, false);
                 MainGrid.IsEnabled = true;
                 await DisplayAlert("SortPix Tagger", "Sorting completed successfully!", "OK");
             }
         }
 
-        private void OnbuttonClickedDontSort(object sender, EventArgs e)
+        private void OnPointerEntered(object sender, PointerEventArgs e)
         {
-            // Handle the "Don't Sort" button click
-            // You can implement any logic you want here
-            // For example, you might want to close the sort dialog or reset some state
+            if (sender is Frame frame)
+            {
+                // Set the hover color. You could also animate this for a smoother effect.
+                frame.BackgroundColor = Color.FromArgb("#404040"); // or any color you like
+            }
+        }
+
+        private void OnPointerExited(object sender, PointerEventArgs e)
+        {
+            if (sender is Frame frame)
+            {
+                // Revert to the original color (transparent in your case)
+                frame.BackgroundColor = Colors.Transparent;
+            }
+        }
+        
+        private async void OnbuttonClickedDontSort(object sender, EventArgs e)
+        {
+            var selectedItem = FileListView.SelectedItem as FileSystemItem;
+            if (selectedItem == null || !await fileManager.IsImageFileAsync(selectedItem.Path))
+                return;
+
+            var confirm = await DisplayAlert("Confirm Don't Sort", "Are you sure you want to mark this file as 'Don't Sort'?", "Yes", "No");
+            if (!confirm)
+            {
+                return;
+            }
+            
+            // Get the directory the app is running from
+            string binPath = AppContext.BaseDirectory;
+            Console.WriteLine("binPath: " + binPath);
+
+            // Go up 3 levels to get to project root
+            string projectRoot = Directory.GetParent(binPath)?.Parent?.Parent?.Parent?.Parent?.FullName;
+            Console.WriteLine("projectRoot: " + projectRoot);
+
+            if (projectRoot == null)
+            {
+                throw new Exception("Failed to find project root.");
+            }
+
+            var noTagJsonPath = Path.Combine(projectRoot, "SortPixPyFiles", "NoTag.json");
+            var noTagData = new NoTagJson { NoTagImages = new List<NoTagImage>() };
+
+            if (File.Exists(noTagJsonPath))
+            {
+                var json = File.ReadAllText(noTagJsonPath);
+                noTagData = JsonSerializer.Deserialize<NoTagJson>(json) ?? new NoTagJson();
+            }
+
+            // Add the selected image name to the list
+            noTagData.NoTagImages.Add(new NoTagImage { ImageName = Path.GetFileName(selectedItem.Path) });
+
+            // Save the updated JSON back to the file
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            File.WriteAllText(noTagJsonPath, JsonSerializer.Serialize(noTagData, options));
+
+            selectedItem.IsSelected = false; // Deselect the item
+            FileListView.SelectedItem = null; // Deselect the item
+            await UpdateManualAndDontTagState();
+        }
+
+        // Helper classes for JSON structure
+        public class NoTagJson
+        {
+            public List<NoTagImage> NoTagImages { get; set; } = new();
+        }
+
+        public class NoTagImage
+        {
+            public string ImageName { get; set; }
         }
 
         private async void OnbuttonClickedManualSort(object sender, EventArgs e)
         {
-            // var manualSortPopup = new ManualSortPopup();
-            // await PopupNavigation.Instance.PushAsync(manualSortPopup);
+            var selectedItem = FileListView.SelectedItem as FileSystemItem;
+            if (selectedItem == null || !await fileManager.IsImageFileAsync(selectedItem.Path))
+                return;
+
+            var popup = new ManualSortPopup(selectedItem.Path);
+            await this.ShowPopupAsync(popup);
         }
 
         private void OnItemSingleTapped(FileSystemItem tappedItem)
@@ -175,6 +288,7 @@ namespace SortPix.Pages.MainPage
                 tappedItem.IsSelected = true; // Select the tapped item
                 FileListView.SelectedItem = tappedItem;
             }
+            _ = UpdateManualAndDontTagState();
         }
 
         private void OnItemDoubleTapped(object sender, EventArgs e)
@@ -268,24 +382,52 @@ namespace SortPix.Pages.MainPage
             }
         }
 
-        private void UpdateSortButtonVisibility()
+        private async Task UpdateSortManagerDropdownVisibility()
         {
-            if (!string.IsNullOrEmpty(currentPath))
+            var selectedSidebarItem = SidebarListView.SelectedItem as SidebarItem;
+            if (selectedSidebarItem != null)
             {
-                var selectedSidebarItem = SidebarListView.SelectedItem as SidebarItem;
-                if (selectedSidebarItem?.Name == "SortPix" || selectedSidebarItem?.Name == "Pictures")
+                if (selectedSidebarItem.Name == "SortPix")
                 {
-                    SortButton.IsVisible = true;
+                    SortManagerDropdownPanel.IsVisible = true;
+                    SortManagerDropdown.IsVisible = true;
+                    AutoSortFrame.IsVisible = true;
+                    await Task.Delay(100); // Wait for the UI to update
+                    await SideBarScrollView.ScrollToAsync(0, 10000, false);
+                }
+                else if (selectedSidebarItem.Name == "Pictures")
+                {
+                    SortManagerDropdownPanel.IsVisible = true;
+                    SortManagerDropdown.IsVisible = true;
+                    AutoSortFrame.IsVisible = false;
+                    await Task.Delay(100); // Wait for the UI to update
+                    await SideBarScrollView.ScrollToAsync(0, 10000, false);
                 }
                 else
                 {
-                    SortButton.IsVisible = false;
+                    SortManagerDropdownPanel.IsVisible = false;
+                    SortManagerDropdown.IsVisible = false;
+                    AutoSortFrame.IsVisible = false;
                 }
             }
             else
             {
-                SortButton.IsVisible = false;
+                SortManagerDropdownPanel.IsVisible = false;
+                SortManagerDropdown.IsVisible = false;
+                AutoSortFrame.IsVisible = false;
             }
+        }
+
+        private async Task UpdateManualAndDontTagState()
+        {
+            var selected = FileListView.SelectedItem as FileSystemItem;
+            bool isImage = false;
+            if (selected != null)
+            {
+                isImage = await fileManager.IsImageFileAsync(selected.Path);
+            }
+            ManualSortEnabled = isImage;
+            DontTagEnabled = isImage;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -389,6 +531,27 @@ namespace SortPix.Pages.MainPage
             // Refresh the ListView to ensure checkboxes reflect the changes
             FileListView.ItemsSource = null;
             FileListView.ItemsSource = Items;
+            FileListView.SelectedItem = null;
+            _ = UpdateManualAndDontTagState();
+        }
+
+        private void DisableDontSort(object? sender, EventArgs e)
+        {
+
+        }
+
+        private async void OnSortManagerDropdownTapped(object? sender, TappedEventArgs e)
+        {
+            if (SortManagerDropdownPanel.IsVisible)
+            {
+                SortManagerDropdownPanel.IsVisible = false;
+            }
+            else
+            {
+                SortManagerDropdownPanel.IsVisible = true;
+                await Task.Delay(100); // Wait for the UI to update
+                await SideBarScrollView.ScrollToAsync(0, 10000, false);
+            }
         }
     }
 }

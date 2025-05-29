@@ -3,14 +3,23 @@ using SortPix.Models;
 
 namespace SortPix.Managers;
 
+using System.Linq;
+
 public class SideBarManager
 {
     public ObservableCollection<SidebarItem> SidebarItems { get; private set; }
+    private SidebarItem SortManagerItem { get; }
 
     public SideBarManager()
     {
-        SidebarItems =
-        [
+        SortManagerItem = new SidebarItem
+        {
+            Name = "Sort Manager",
+            IconPath = "sort_manager__dropdown_icon.png",
+        };
+
+        SidebarItems = new ObservableCollection<SidebarItem>
+        {
             new SidebarItem
             {
                 Name = "Desktop", Path = GetSpecialFolderPath(Environment.SpecialFolder.Desktop),
@@ -35,8 +44,7 @@ public class SideBarManager
             new SidebarItem
             {
                 Name = "SortPix",
-                Path = GetSpecialFolderPath(Environment.SpecialFolder.UserProfile) +
-                       @"\Desktop\SortPix\SortPix\SortPixPyFiles\Processed_Images",
+                Path = GetSortPixProcessedImagesPath(),
                 IconPath = "tagged_photos_icon.png"
             },
             new SidebarItem
@@ -51,8 +59,7 @@ public class SideBarManager
             },
             new SidebarItem
             {
-                Name = "Recycle Bin", Path = null, IconPath = "bin_icon.png" 
-                
+                Name = "Recycle Bin", Path = null, IconPath = "bin_icon.png"
             },
             new SidebarItem
             {
@@ -61,7 +68,20 @@ public class SideBarManager
                        @"\OneDrive - The University of Winchester",
                 IconPath = "onedrive_icon.png"
             }
-        ];
+        };
+    }
+
+    private static string GetSortPixProcessedImagesPath()
+    {
+        string binPath = AppContext.BaseDirectory;
+        string projectRoot = Directory.GetParent(binPath)?.Parent?.Parent?.Parent?.Parent?.FullName;
+
+        if (projectRoot == null)
+        {
+            throw new Exception("Failed to find project root.");
+        }
+
+        return Path.Combine(projectRoot, "SortPixPyFiles", "Processed_Images");
     }
 
     private static string GetSpecialFolderPath(Environment.SpecialFolder folder)
